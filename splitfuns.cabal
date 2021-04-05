@@ -1,0 +1,44 @@
+cabal-version:      2.4
+name:               splitfuns
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+synopsis: Splitting function definitions over multiple modules
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+bug-reports: https://github.com/noughtmare/splitfuns/issues
+
+-- The license under which the package is released.
+license:            GPL-3.0-only
+author:             Jaro Reinders
+maintainer:         jaro.reinders@gmail.com
+
+-- A copyright notice.
+copyright:          2021 Jaro Reinders
+-- category:
+extra-source-files: CHANGELOG.md
+
+source-repository head
+  type:     git
+  location: https://github.com/noughtmare/splitfuns/issues
+
+executable splitfuns
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    other-modules: TH, Base, Third
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+    build-depends:    base ^>=4.14.1.0
+                    , template-haskell
+                    , containers
+                    , optics
+                    , hashable
+                    , cereal
+                    , bytestring
+    hs-source-dirs:   app
+    default-language: Haskell2010
