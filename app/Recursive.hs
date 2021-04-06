@@ -14,18 +14,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -}
-{-# LANGUAGE TemplateHaskell, QuasiQuotes #-}
-module Main where
+{-# LANGUAGE TemplateHaskell, QuasiQuotes, DataKinds #-}
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
+module Recursive (recursive) where
 
-import Splitfuns (sfImport, collect)
-import Base (base)
-import Recursive (recursive)
+import Splitfuns (define, sfModule)
 
-sfImport 'base
-sfImport 'recursive
+define [d|fac n = n * fac (n - 1)|]
 
-fac :: Int -> Int
-fac = $(collect "fac")
-
-main :: IO ()
-main = print (fac 5)
+recursive = $(sfModule)
