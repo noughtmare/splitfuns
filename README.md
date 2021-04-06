@@ -6,13 +6,23 @@ allows users to define functions across multiple files. You can define a clause
 in one file and another clause in another file and then combine them in a third
 file.
 
-In this repository you will find four source code files:
+In this package is split into two parts. The src directory contains the modules:
 
-  * `TH.hs` - this file implements the main funcitonality
-  * `Main.hs` - this file combines the base case with a recursive case of the
+  * `Language.Haskell.TH.Module` - implements a system for sharing
+      data between modules with template haskell.
+  * `Splitfuns` - implements shows how that system can be used to
+      allow users to define functions over multiple modules.
+  * `Language.Haskell.TH.Serialize` - defines Serialize instances
+      for template Haskell data types that make it possible to share template
+      haskell types across modules.
+
+The `app` directory showcases how the `Splitfuns` module can be used with a
+simple example. It contains three modules:
+
+  * `Main` - combines the base case with a recursive case of the
       factorial function and runs it.
-  * `Base.hs` - this file defines the base case of the factorial function
-  * `Third.hs` - this file defines the value `x` which is used in the base case
+  * `Base` - defines the base case of the factorial function
+  * `Third` - defines the value `x` which is used in the base case
 
 The `Third` module defines the value `x` which is used in the factorial
 function, but that module is not imported in the `Main` module, so this shows

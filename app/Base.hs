@@ -15,11 +15,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -}
 {-# LANGUAGE TemplateHaskell, QuasiQuotes, DataKinds #-}
-module Base (splitfunsBase) where
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
+module Base (base) where
 
-import TH
-import Third
+import Splitfuns (define, sfModule)
+import Third (x)
 
 define [d|fac 0 = x|]
 
-splitfunsBase = $(splitfunsModule)
+base = $(sfModule)

@@ -22,14 +22,29 @@ copyright:          2021 Jaro Reinders
 extra-source-files: CHANGELOG.md
 
 source-repository head
-  type:     git
-  location: https://github.com/noughtmare/splitfuns/issues
+    type:     git
+    location: https://github.com/noughtmare/splitfuns/issues
+
+library
+    exposed-modules:  Language.Haskell.TH.Module
+                    , Language.Haskell.TH.Serialize
+                    , Splitfuns
+    hs-source-dirs:   src
+    build-depends:    base ^>=4.14.1.0
+                    , template-haskell
+                    , containers
+                    , optics
+                    , hashable
+                    , cereal
+                    , bytestring
+    default-language: Haskell2010
+    ghc-options: -Wall
 
 executable splitfuns
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules: TH, Base, Third
+    other-modules: Base, Third
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -40,5 +55,7 @@ executable splitfuns
                     , hashable
                     , cereal
                     , bytestring
+                    , splitfuns
     hs-source-dirs:   app
     default-language: Haskell2010
+    ghc-options: -Wall

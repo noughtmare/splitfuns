@@ -14,21 +14,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -}
-{-# LANGUAGE TemplateHaskell, QuasiQuotes, DataKinds #-}
+{-# LANGUAGE TemplateHaskell, QuasiQuotes #-}
 module Main where
 
-import TH
-import Base
+import Splitfuns (define, sfImport, collect)
+import Base (base)
 
-splitfunsImport 'splitfunsBase
+sfImport 'base
 
 define [d|fac n = n * fac (n - 1)|]
 
 fac :: Int -> Int
 fac = $(collect "fac")
 
-splitfunsMain = $(splitfunsModule)
-
 main :: IO ()
 main = print (fac 5)
-
