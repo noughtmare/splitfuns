@@ -17,28 +17,28 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 {-# LANGUAGE LambdaCase, BlockArguments, TypeApplications, TupleSections #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TemplateHaskellQuotes #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DeriveLift, GeneralizedNewtypeDeriving, StandaloneDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- The serialization does not work for locally defined unexported values, but
 -- it seems to work for values defined in modules not accessible by the module
 -- where the @collect@ function is used. So perhaps this is already good enough.
 
-module Splitfuns (define, collect, sfModule, sfImport) where
+module Splitfuns (define, collect, sfModule, sfImport, debug) where
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
-import Language.Haskell.TH.Module
-import Language.Haskell.TH.Serialize ()
+import Language.Haskell.TH.Lift ()
 import qualified Data.Map as M
 import Data.Map (Map)
+import Data.Map.Internal (Map (..))
 import Data.Maybe
 import Optics
 -- import Data.Hashable
-import Data.Serialize
-import Data.Proxy
 
-newtype DefMap = DefMap (Map String (Name, [Clause])) deriving Serialize
+newtype DefMap = DefMap (Map String (Name, [Clause])) deriving (Lift, Show)
+
+deriving instance (Lift k, Lift v) => Lift (Map k v)
 
 instance Semigroup DefMap where (<>) = mappend
 instance Monoid DefMap where
@@ -75,7 +75,7 @@ define q = do
 
   putQ @DefMap (DefMap defMap')
 
-  pure []
+  pure [ValD WildP (NormalB (TupE [])) [FunD name clauses]]
 
 collect :: String -> Q Exp
 collect str = do
@@ -85,7 +85,16 @@ collect str = do
   pure (LetE [FunD name (clauses' & rename name' name)] (VarE name))
 
 sfModule :: Q Exp
-sfModule = module' (Proxy @DefMap)
+sfModule = lift =<< fromMaybe mempty <$> getQ @DefMap
 
-sfImport :: Name -> Q [Dec]
-sfImport = import' (Proxy @DefMap)
+sfImport :: DefMap -> Q [Dec]
+sfImport x' = do
+  x <- fromMaybe mempty <$> getQ @DefMap
+  putQ (x <> x')
+  pure []
+
+debug :: Q [Dec]
+debug = do
+  x <- fromMaybe mempty <$> getQ @DefMap
+  runIO (print x)
+  pure []

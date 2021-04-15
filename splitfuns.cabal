@@ -26,8 +26,7 @@ source-repository head
     location: https://github.com/noughtmare/splitfuns/issues
 
 library
-    exposed-modules:  Language.Haskell.TH.Module
-                    , Language.Haskell.TH.Serialize
+    exposed-modules:  Language.Haskell.TH.Lift
                     , Splitfuns
     hs-source-dirs:   src
     build-depends:    base ^>=4.14.1.0
@@ -35,8 +34,6 @@ library
                     , containers
                     , optics
                     , hashable
-                    , cereal
-                    , bytestring
     default-language: Haskell2010
     ghc-options: -Wall
 
@@ -53,8 +50,6 @@ executable splitfuns
                     , containers
                     , optics
                     , hashable
-                    , cereal
-                    , bytestring
                     , splitfuns
     hs-source-dirs:   app
     default-language: Haskell2010

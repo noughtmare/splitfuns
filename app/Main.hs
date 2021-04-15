@@ -17,12 +17,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 {-# LANGUAGE TemplateHaskell, QuasiQuotes #-}
 module Main where
 
-import Splitfuns (sfImport, collect)
+import Splitfuns (sfImport, collect, debug)
 import Base (base)
 import Recursive (recursive)
 
-sfImport 'base
-sfImport 'recursive
+sfImport base
+sfImport recursive
 
 fac :: Int -> Int
 fac = $(collect "fac")

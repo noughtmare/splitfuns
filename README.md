@@ -8,13 +8,11 @@ file.
 
 In this package is split into two parts. The src directory contains the modules:
 
-  * `Language.Haskell.TH.Module` - implements a system for sharing
-      data between modules with template haskell.
-  * `Splitfuns` - implements shows how that system can be used to
-      allow users to define functions over multiple modules.
-  * `Language.Haskell.TH.Serialize` - defines Serialize instances
-      for template Haskell data types that make it possible to share template
-      haskell types across modules.
+  * `Splitfuns` - implements a system that can be used to allow users to define
+      functions over multiple modules.
+  * `Language.Haskell.TH.Lift` - defines Lift instances for template Haskell
+      data types that make it possible to share template haskell types across
+      modules.
 
 The `app` directory showcases how the `Splitfuns` module can be used with a
 simple example. It contains three modules:
