@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 {-# LANGUAGE TemplateHaskellQuotes #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 -- The serialization does not work for locally defined unexported values, but
 -- it seems to work for values defined in modules not accessible by the module
@@ -34,9 +35,13 @@ import qualified Data.Map as M
 import Data.Map (Map)
 import Data.Maybe
 import Optics
--- import Data.Hashable
+import Data.Hashable
 import Data.Serialize
 import Data.Proxy
+import Data.Foldable
+
+data Init = Init
+data Manual = Manual
 
 newtype DefMap = DefMap (Map String (Name, [Clause])) deriving Serialize
 
@@ -53,15 +58,36 @@ rename oldname newname = gplate %~ rename'
       | name == oldname = newname
       | otherwise       = name
 
--- -- Haskell base64 encoding which is compatible with Haskell variable names
--- hs64 :: Integral a => a -> String
--- hs64 n = "hs64_" ++ go n where
---   go 0 = ""
---   go n' = let (q, r) = quotRem n' 64 in table !! fromIntegral r : go q
---   table = ['A'..'Z'] ++ ['a'..'z'] ++ ['0'..'9'] ++ "'_"
+instance Hashable Module
+instance Hashable PkgName
+instance Hashable ModName
+
+initialize :: Q ()
+initialize = do
+  md <- thisModule
+  addModFinalizer do
+    -- disable automatic module generation when a manual module is defined
+    getQ @Manual >>= \case
+      Just _ -> pure ()
+      Nothing -> do
+        mtyp <- moduleType (Proxy @DefMap)
+        name <- newName (hs64 (fromIntegral (hash ("splitfuns", md))))
+        addTopDecls
+          [ SigD name mtyp
+          , ValD (VarP name) (NormalB (VarE 'undefined)) []
+          ]
+  reifyModule md >>= \(ModuleInfo mds) -> for_ mds \md' -> do
+    lookupValueName (hs64 (fromIntegral (hash ("splitfuns", md')))) >>= \case
+      Nothing -> pure ()
+      Just name -> () <$ sfImport name
 
 define :: Q [Dec] -> Q [Dec]
 define q = do
+  getQ @Init >>= \case
+    Nothing -> initialize
+    _ -> pure ()
+  putQ Init
+
   [FunD name clauses] <- q
   let str = nameBase name
   DefMap defMap <- fromMaybe (DefMap M.empty) <$> getQ @DefMap
@@ -79,13 +105,20 @@ define q = do
 
 collect :: String -> Q Exp
 collect str = do
+  getQ @Init >>= \case
+    Nothing -> initialize
+    _ -> pure ()
+  putQ Init
+
   Just (DefMap defMap) <- getQ @DefMap
   name <- newName (str ++ "'")
   Just (name', clauses') <- pure $ M.lookup str defMap
   pure (LetE [FunD name (clauses' & rename name' name)] (VarE name))
 
 sfModule :: Q Exp
-sfModule = module' (Proxy @DefMap)
+sfModule = do
+  putQ Manual
+  module' (Proxy @DefMap)
 
 sfImport :: Name -> Q [Dec]
 sfImport = import' (Proxy @DefMap)
