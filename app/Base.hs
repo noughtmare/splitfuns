@@ -15,9 +15,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -}
 {-# LANGUAGE TemplateHaskell, QuasiQuotes, DataKinds #-}
-module Base where
+module Base () where
 
 import Splitfuns (define)
 import Third (x)
+
+-- x :: Int
+-- x = 1
 
 define [d|fac 0 = x|]

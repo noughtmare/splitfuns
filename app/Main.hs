@@ -18,11 +18,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 module Main where
 
 import Splitfuns (collect)
-import Base
-import Recursive
+import Base ()
+import Recursive ()
 
-fac :: Int -> Int
-fac = $(collect "fac")
+$(collect "fac")
 
 main :: IO ()
 main = print (fac 5)
